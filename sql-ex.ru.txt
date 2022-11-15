@@ -202,6 +202,118 @@ where type='pc'
 group by maker
 having count(model)>=3
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:21
+Find out the maximum PC price for each maker having models in the PC table. Result set: maker, maximum price. 
+
+select maker, max(price)
+from Product
+join PC on product.model = pc.model
+group by maker
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:22
+For each value of PC speed that exceeds 600 MHz, find out the average price of PCs with identical speeds.
+Result set: speed, average price. 
+
+select speed, avg(price) from PC
+group by speed
+having speed in (
+select distinct(speed) from PC 
+where speed > 600)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:23
+Get the makers producing both PCs having a speed of 750 MHz or higher and laptops with a speed of 750 MHz or higher.
+Result set: maker 
+
+select maker 
+from Product join PC on Product.model = PC.model 
+where speed >= 750  
+intersect  
+select maker 
+from Product join Laptop on Product.model = Laptop.model   
+where speed >= 750
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:24
+List the models of any type having the highest price of all products present in the database. 
+
+select model from
+(select price, model from PC
+union
+select price, model from Laptop
+union
+select price, model from Printer) querry_1
+where price = 
+(select max(price)
+from
+(select price, model from PC
+union
+select price, model from Laptop
+union
+select price, model from Printer) querry_1)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:25
+Find the printer makers also producing PCs with the lowest RAM capacity and the highest processor speed of all PCs having the lowest RAM capacity.
+Result set: maker. 
+
+select distinct maker from Product
+where type = 'PC' and model in
+(select model from PC where speed in
+(select max(speed) from PC where ram =
+(select min(ram) from PC))
+and ram in (select min(ram) from PC))
+intersect
+select distinct maker from Product
+where type = 'Printer'
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:26
+Find out the average price of PCs and laptops produced by maker A.
+Result set: one overall average price for all items. 
+
+select avg(price)
+from
+(select price from PC
+join Product on PC.model = Product.model
+where maker = 'A'
+union all
+select price from Laptop
+join Product on Laptop.model = Product.model
+where maker = 'A') querry_in
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:27
+Find out the average hard disk drive capacity of PCs produced by makers who also manufacture printers.
+Result set: maker, average HDD capacity. 
+
+select maker, avg(hd)
+from Product
+join PC on Product.model = PC.model
+where maker in(
+select maker from product 
+where type = 'Printer')
+group by maker
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    
+Exercise:28
+Using Product table, find out the number of makers who produce only one model.
+
+select count(maker)
+from 
+(Select maker from Product
+group by maker
+having count(model) = 1) querry_1
 
 
 
